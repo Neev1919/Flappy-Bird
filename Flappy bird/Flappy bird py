@@ -1,0 +1,145 @@
+import pygame
+import math 
+import os
+from random import randint
+from collections import deque
+from pygame.locals import*
+fps = 60
+width = 600
+height = 600
+animationspeed = 0.15
+Pipecollision = 0
+Pipes = []
+def loadimages():
+    def loadimage(imgfilename):
+        file = os.path.join(".",imgfilename)
+        img = pygame.image.load(file)
+        return img
+    return {"background":loadimage("background.png"),
+        "birdwingdown":loadimage("bird_wing_down.png"),
+        "birdwingup":loadimage("bird_wing_up.png"),
+        "bird":loadimage("bird.gif"),
+        "ground":loadimage("ground.png"),
+        "Pipebody":loadimage("Pipe_body.png"),
+        "Pipeend":loadimage("Pipe_end.png"),
+        "Pipe":loadimage("Pipe.png"),       
+        }
+
+
+
+
+
+
+
+# sink speed is a speed per miliseconds the bird descends in  its a speed in miliseconds in which the bird is not climbing it is just going down. When not doing anytrhing
+# climb speed is a speed in miliseconds in which the bird goes up while climbing  
+# climb duation is the overall speed and cycle it is a number of miliseconds that it takes the bird to complete the total climb
+class bird ():
+    climb_duration = 300
+    climb_speed = 0.3
+    sinking_speed = 0.1
+    width = 50
+    height = 50
+    def __init__(self,x,y,imageup,imagedown,secondstoclimb): 
+        self.x = x
+        self.y = y
+        self.imageup = imageup 
+        self.imagedown = imagedown
+        self.secondstoclimb = secondstoclimb
+        self.mask_wingsup = pygame.mask.from_surface(self.imageup) 
+        self.mask_wingsdown = pygame.mask.from_surface(self.imagedown) 
+
+    def updateposition(self): 
+        if self.secondstoclimb >=0: 
+            self.y -= (bird.climbspeed  *  frames_2_msec(1))
+        else:  
+             self.y += bird.sinkspeed  *  frames_2_msec() 
+    def image(self):
+        if pygame.time.get_ticks() == 0.2:
+            return self.imageup
+        else:
+            return self.imagedown
+    def rect(self):
+        return Rect(self.x,self.y,bird.width,bird.height)
+
+class Pipe():
+    pwidth = 80
+    pheight = 200                                
+    interval = 1000
+    Pipe_body_img = loadimages()
+    def __init__(self,x,y,total_Pipe_body_pieces,Pipeend,Pipebody,placesshape):
+        self.x = x
+        self.y = y 
+        self.image = pygame.surface(Pipe.pwidth,Pipe.pheight)
+        total_Pipe_body_pieces (width - bird.height - Pipe.pheight)
+        self.bottompieces = randint (1,total_Pipe_body_pieces)
+        self.top_pieces = randint (1,total_Pipe_body_pieces)
+        for i in range(1,self.bottompieces+1):
+            pieceshape =(0,height-i*Pipe.pheight)
+            self.image.blit(Pipebody,placesshape)
+        bottom_Pipe_end_y = height - self.bottom_height
+        self.image.blit(Pipeend.bottom_Pipe_n_y)
+        for i in range(1,self.top_peices+1):
+            pieceshape =(0,height-i*Pipe.pheight)
+            self.image.blit(Pipebody,placesshape)
+        top_body_end_y = height - self.top_height
+        self.image.blit(Pipeend.top_body_end_y)
+    def top_height(self):
+        return self.top_pieces*Pipe.pheight
+    def bottom_height(self):
+        return self.bottompieces*Pipe
+    def rect(self):
+        return Rect(self.x,self.y,Pipe.pwidth,Pipe.pheight)
+    def update(self):
+        self.x -= animationspeed*fps
+    def collision(self):
+        return pygame.sprite.collide_mask(self,bird)
+def frames_2_msec(frames):
+    return 1000.0 * frames/fps
+def main():
+    pygame.init()
+    paused = False
+    clock = pygame.time.Clock()
+    display = pygame.display.set_mode((width,height))
+    
+    pygame.display.set_caption("Flappy Bird Game") 
+    font1 = pygame.font.SysFont("times new romans", 20, bold = True)
+    images = loadimages()
+    Bird = bird(int(width/2 - bird.height/2),300,(images['birdwingup'],images['birdwingdown']))
+    done = False
+    while not done:
+        clock.tick(fps)
+        for x in pygame.event.get():
+          if x.type == quit or(x.type == KEYUP and x.key == K_ESCAPE):
+           done = True
+           break 
+          elif x.type == KEYUP and x.key in(K_PAUSE,K_p):
+            paused = not paused
+          elif x.type == MOUSEBUTTONUP or (x.type == KEYUP and x.key in(K_UP, K_RETURN, K_SPACE)):
+            Bird.msec_to_climb = bird.climb_duration
+        if paused:
+            continue
+        Pipecollection = any(p.collision(bird)for p in Pipes)
+        if Pipecollision == 1 or 0>= Bird.py or bird.y >= height - bird.height:
+            for x in (0,width/2):
+                display.blit(images["background"],(x,0))
+            while not Pipe[0].visible:
+                Pipes.popleft[0]
+            for pp in Pipes:
+                pp.update() 
+                display.blit(pp.image,pp.rect)
+            Bird.update()
+            display.blit(bird.image,bird.rect)
+            if pp.x + Pipe.width <= bird.x and not pp.score_counted: 
+                score += 1
+                pp.score_counted = True
+            score_surface= font1.render(str(score),True,(255,255,255))
+            score_x = width/2 - score_surface.get_width()/2
+            display.blit(score_surface,(score_x,Pipe.pheight))
+            pygame.display.update()
+    print ("Game Over")
+    pygame.quit()
+main()
+
+
+    
